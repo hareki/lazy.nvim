@@ -330,7 +330,8 @@ function M.load()
     vim.deepcopy(Config.options.spec),
   }
   specs[#specs + 1] = M.find_local_spec()
-  specs[#specs + 1] = { "folke/lazy.nvim" }
+  -- First, so that a user spec naming a fork of lazy.nvim sets its url
+  table.insert(specs, 1, { "folke/lazy.nvim" })
 
   Config.spec:parse(specs)
 
