@@ -31,7 +31,11 @@ local skip = { mode = true, id = true, ft = true, rhs = true, lhs = true }
 ---@return LazyKeys
 function M.parse(value, mode)
   value = type(value) == "string" and { value } or value --[[@as LazyKeysSpec]]
-  local ret = vim.deepcopy(value) --[[@as LazyKeys]]
+  -- PERF: a shallow copy is enough, since only top-level fields are changed below
+  local ret = {} ---@type LazyKeys
+  for k, v in pairs(value) do
+    ret[k] = v
+  end
   ret.lhs = ret[1] or ""
   ret.rhs = ret[2]
   ---@diagnostic disable-next-line: no-unknown

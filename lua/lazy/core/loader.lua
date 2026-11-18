@@ -513,7 +513,12 @@ function M.source(path)
 end
 
 function M.colorscheme(name)
-  if vim.tbl_contains(vim.fn.getcompletion("", "color"), name) then
+  -- PERF: check the rtp first, since getcompletion globs every colors dir
+  if
+    #vim.api.nvim_get_runtime_file("colors/" .. name .. ".vim", false) > 0
+    or #vim.api.nvim_get_runtime_file("colors/" .. name .. ".lua", false) > 0
+    or vim.tbl_contains(vim.fn.getcompletion("", "color"), name)
+  then
     return
   end
   for _, plugin in pairs(Config.plugins) do

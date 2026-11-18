@@ -63,10 +63,17 @@ function M.trackfn(data, fn)
   end
 end
 
+---@type table<string, string>
+local normnames = {}
+
 ---@param name string
 ---@return string
 function M.normname(name)
-  local ret = name:lower():gsub("^n?vim%-", ""):gsub("%.n?vim$", ""):gsub("[%.%-]lua", ""):gsub("[^a-z]+", "")
+  local ret = normnames[name]
+  if not ret then
+    ret = name:lower():gsub("^n?vim%-", ""):gsub("%.n?vim$", ""):gsub("[%.%-]lua", ""):gsub("[^a-z]+", "")
+    normnames[name] = ret
+  end
   return ret
 end
 
@@ -284,16 +291,13 @@ function M.get_unloaded_rtp(modname, opts)
 end
 
 function M.find_root(modname)
-  local paths, cached = M.get_unloaded_rtp(modname, { cache = true })
-
   local ret = require("lazy.core.cache").find(modname, {
     rtp = true,
-    paths = paths,
     patterns = { ".lua", "" },
   })[1]
 
-  if not ret and cached then
-    paths = M.get_unloaded_rtp(modname)
+  if not ret then
+    local paths = M.get_unloaded_rtp(modname)
     ret = require("lazy.core.cache").find(modname, {
       rtp = false,
       paths = paths,
